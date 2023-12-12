@@ -113,10 +113,10 @@ export default {
         (res) => {
           this.loading = false;
           console.log(res);
-          if (res.status == 0) {
+          if (res.status == 404) {
             this.$message({
               showClose: true,
-              message: res.msg,
+              message: "书本库存不足",
               type: "error",
             });
           } else if (res.status == 200) {

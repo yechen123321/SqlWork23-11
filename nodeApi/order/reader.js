@@ -139,6 +139,7 @@ router.post('/register', (req, res) => {
 // 学生请求预约记录接口
 router.post('/reserve',(req,res)=>{
 	let data = req.body
+	console.log(data);
 	// console.log('学生请求预约记录')
     conn.query(`select reserve.readerId,book.bookId,reserve.status,author,bookName,date from reserve 
     	left join book on reserve.bookId=book.bookId where reserve.readerId = '${data.readerId}'`, (err, rs)=>{
@@ -228,26 +229,86 @@ router.post('/borrows',(req,res)=>{
     })
 })
 // 学生借书接口
-router.post('/addborrow',(req,res)=>{
-	let data = req.body
-	let date = new Date(data.date);
-	console.log('学生借书信息为：',data)
-	// 向借书表中添加数据
-	conn.query(`insert into borrow (readerId, bookId, borrowDate, returnDate, realDate, status) values('${data.readerId}','${data.bookId}',now() , date_add(NOW(), interval 1 month),'9999-12-31','未还')`)
-		// 书籍表数量-1
-	conn.query(`update book set amount = amount - 1 where bookId='${data.bookId}'`)
-		// 书籍表借阅次数+1
-	conn.query(`update book set borrowedTimes = borrowedTimes + 1 where bookId='${data.bookId}'`)
-		// 用户借阅数量+1
-	conn.query(`update reader set borrowTimes = borrowTimes + 1 where readerId='${data.readerId}'`)
-		// 将预订表的借书时间改为当前时间
-	conn.query(`update reserve set borrowDate = now() where bookId='${data.bookId}' and readerId='${data.readerId}' and date='${formatDate(date)}'`)
-	conn.query(`update reserve set status='已借阅' where bookId='${data.bookId}' and readerId='${data.readerId}' and date='${formatDate(date)}'`)
-	res.json({
-		msg:'添加借书记录成功！',
-		status:200
-	})
-})
+// router.post('/addborrow',(req,res)=>{
+// 	let data = req.body
+// 	let date = new Date(data.date);
+// 	let amount = `${data.amount}`;
+// 	console.log(amount);
+// 	if(amount <= 0){
+// 		res.json({
+// 			msg:'书本库存不足！',
+// 			status:404
+// 		})
+// 	}
+// 	console.log('学生借书信息为：',data)
+// 	// 向借书表中添加数据
+// 	conn.query(`select `)
+// 	conn.query(`insert into borrow (readerId, bookId, borrowDate, returnDate, realDate, status) values('${data.readerId}','${data.bookId}',now() , date_add(NOW(), interval 1 month),'9999-12-31','未还')`)
+// 		// 书籍表数量-1
+// 	conn.query(`update book set amount = amount - 1 where bookId='${data.bookId}'`)
+// 		// 书籍表借阅次数+1
+// 	conn.query(`update book set borrowedTimes = borrowedTimes + 1 where bookId='${data.bookId}'`)
+// 		// 用户借阅数量+1
+// 	conn.query(`update reader set borrowTimes = borrowTimes + 1 where readerId='${data.readerId}'`)
+// 		// 将预订表的借书时间改为当前时间
+// 	conn.query(`update reserve set borrowDate = now() where bookId='${data.bookId}' and readerId='${data.readerId}' and date='${formatDate(date)}'`)
+// 	conn.query(`update reserve set status='已借阅' where bookId='${data.bookId}' and readerId='${data.readerId}' and date='${formatDate(date)}'`)
+// 	res.json({
+// 		msg:'添加借书记录成功！',
+// 		status:200
+// 	})
+// })
+router.post('/addborrow', (req, res) => {
+  let data = req.body;
+  let date = new Date(data.date);
+
+  // 检查书本库存是否充足
+  conn.query(`select amount from book where bookId='${data.bookId}'`, (err, result) => {
+    if (err) {
+      res.json({
+        msg: '查询书本库存失败',
+        status: 500
+      });
+    } else {
+      if (result.length > 0 && result[0].amount > 0) {
+        // 书本库存充足，执行借书操作
+        console.log('学生借书信息为：', data);
+        // 向借书表中添加数据
+        conn.query(`insert into borrow (readerId, bookId, borrowDate, returnDate, realDate, status) values('${data.readerId}','${data.bookId}',now() , date_add(NOW(), interval 1 month),'9999-12-31','未还')`, (err, result) => {
+          if (err) {
+            res.json({
+              msg: '添加借书记录失败！',
+              status: 500
+            });
+          } else {
+            // 书籍表数量-1
+            conn.query(`update book set amount = amount - 1 where bookId='${data.bookId}'`, (err, result) => {
+              if (err) {
+                res.json({
+                  msg: '更新书本库存失败',
+                  status: 500
+                });
+              } else {
+                // 其他操作...
+                res.json({
+                  msg: '添加借书记录成功！',
+                  status: 200
+                });
+              }
+            });
+          }
+        });
+      } else {
+        // 书本库存不足
+        res.json({
+          msg: '书本库存不足！',
+          status: 404
+        });
+      }
+    }
+  });
+});
+
 // 学生还书接口
 router.post('/returnbook',(req,res)=>{
 	let data = req.body
