@@ -9,8 +9,8 @@ const { nanoid } = require('nanoid')
  * userEmail: 自己的 QQ 邮箱
  * userCode： 自己的 QQ 邮箱授权码
  */
-const userEmail = '3298365564@qq.com'
-const userCode = 'svidkicwuyymdbdf'
+const userEmail = '***********'
+const userCode = '***********'
 
 function formatDate(date) {
 	return new Date(date).toISOString().replace("T", " ").substring(0, 19);
