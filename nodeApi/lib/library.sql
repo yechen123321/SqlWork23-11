@@ -294,6 +294,7 @@ call cy_borrow('2','14',now(), '未还');
 # 触发器
 ## 借书后书本的目前库存-1
 
+/*
 drop trigger if exists hrn_borrowChange;
 
 create trigger hrn_borrowChange after insert on borrow for each row
@@ -303,3 +304,4 @@ begin
             borrowedTimes = borrowedTimes + 1
         where bookId = NEW.bookId;
 end;
+*/
