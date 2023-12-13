@@ -333,6 +333,7 @@ router.post('/returnbook',(req,res)=>{
 					status:100
 				})
 			}else{
+				conn.query(`update reader set borrowTimes = borrowTimes + 1 where readerId='${data.readerId}'`)
 				res.json({
 					msg:'还书成功！',
 					status:200
