@@ -298,6 +298,7 @@ router.post('/addborrow', (req, res) => {
             });
           }
         });
+		conn.query(`update reserve set status='已借阅' where bookId='${data.bookId}' and readerId='${data.readerId}' and date='${formatDate(date)}'`)
       } else {
         // 书本库存不足
         res.json({
