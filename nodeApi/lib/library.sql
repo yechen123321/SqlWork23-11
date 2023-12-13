@@ -222,8 +222,6 @@ create procedure  cyz_book
     in amounts int(0), in position_where varchar(30), in total int(0))
 begin
     declare count int;
-    insert into book (bookId,bookName, author, amount, position, totalAmount)
-        values (RAND(),book_name, author_name, amounts, position_where, total);
     select count(*) into count from book where position=position_where;
     SELECT COUNT;
     if ( count > 0 ) then
@@ -235,6 +233,8 @@ begin
              select '添加书本成功' as SystemsMessages;
         end;
     end if;
+    insert into book (bookId,bookName, author, amount, position, totalAmount)
+      values (RAND(),book_name, author_name, amounts, position_where, total);
 end;
 
 call cyz_book('算法导论','程雨铮',322,'01#12A#1-12',322);
